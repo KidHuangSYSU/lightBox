@@ -37,10 +37,12 @@
     this.popupMask.click(function() {
       $(this).fadeOut();
       self.popupWin.fadeOut();
+      self.clear = false;
     });
     this.closeBtn.click(function() {
       self.popupMask.fadeOut();  
-      self.popupWin.fadeOut();    
+      self.popupWin.fadeOut(); 
+      self.clear = false;   
     });
     this.flag = true;
     this.nextBtn.hover(function(){
@@ -52,7 +54,7 @@
         $(this).removeClass("next-btn-show");
       }	
     }).click(function(e) {
-      e.stopPropagation(e);
+      e.stopPropagation();
       if (!$(this).hasClass("disabled")&&self.flag) {
       	self.flag = false;
       	self.goto("next");
@@ -72,6 +74,25 @@
       	e.stopPropagation();
       	self.goto("prev");
       }
+    });
+    var timer = null;
+    this.clear = false;
+    $(window).resize(function() {
+      if (!self.clear)
+      	return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function(){
+      	       self.loadPicSize(self.groupData[self.index].src);
+              }, 500);
+    }).keyup(function(e){
+      if (!self.clear)
+      	return;
+       var keyvalue = e.which;
+       if (keyvalue == 38 || keyvalue == 37) {
+         self.previousBtn.click();
+       } else if (keyvalue == 39 || keyvalue == 40) {
+         self.nextBtn.click();
+       }
     });
   };
 
@@ -119,6 +140,7 @@
                                             .fadeIn();
                                self.picCaptionArea.fadeIn();
                                self.flag = true;
+                               self.clear = true;
                              });
 
       this.captionText.text(this.groupData[this.index].caption);
@@ -130,6 +152,7 @@
   	  self.popupPic.css({width:"auto",
   	                     height:"auto"})
   	               .hide();
+  	  this.picCaptionArea.hide();
   	  this.preLoadImg(src, function(){
   	  	self.popupPic.attr("src", src);
   	  	self.changePic(self.popupPic.width(), self.popupPic.height());
